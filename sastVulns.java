@@ -47,6 +47,13 @@ public class AdditionalSastCases {
         String xml = request.getParameter("xml");
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // Disable DTD and external entity processing to prevent XXE attacks (CWE-611)
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
         DocumentBuilder builder = factory.newDocumentBuilder();
 
         builder.parse(new ByteArrayInputStream(xml.getBytes()));
