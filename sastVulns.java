@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 public class AdditionalSastCases {
@@ -19,10 +20,12 @@ public class AdditionalSastCases {
                 "user",
                 "pass");
 
-        Statement stmt = conn.createStatement();
-
-        stmt.executeQuery(
-                "SELECT * FROM users WHERE username='" + username + "'");
+        // Use a parameterized PreparedStatement to prevent SQL injection;
+        // the username value is bound as a parameter, not concatenated into the query.
+        PreparedStatement stmt = conn.prepareStatement(
+                "SELECT * FROM users WHERE username=?");
+        stmt.setString(1, username);
+        stmt.executeQuery();
     }
 
     // 2. Path Traversal (High)
