@@ -13,12 +13,14 @@ db_connection = None
 
 @app.route("/vulnerable/user/select_by_id/0")
 def vuln_user_select_by_id_v0():
-    """Vulnerable user lookup by ID"""
+    """User lookup by ID using a parameterized query to prevent SQL injection"""
     param = request.args.get("id", "")
-    query = f"SELECT id, username, email, password, role, status FROM users WHERE id = {param}"
+    # Use a parameterized query: the placeholder ? is bound to param by the
+    # database driver, so user-supplied input is never interpreted as SQL.
+    query = "SELECT id, username, email, password, role, status FROM users WHERE id = ?"
     try:
         cursor = db_connection.cursor()
-        cursor.execute(query)
+        cursor.execute(query, (param,))
         rows = cursor.fetchall()
         result = [str(row) for row in rows]
         return Response("\n".join(result), mimetype="text/plain")
